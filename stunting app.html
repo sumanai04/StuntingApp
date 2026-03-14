@@ -1,0 +1,307 @@
+<style>
+    /* Basic styling for the calculator (same as before) */
+    .calculator-container {
+        font-family: Arial, sans-serif;
+        background-color: #f4f7fc;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        margin: 20px auto;
+        border: 1px solid #dbe3f0;
+    }
+    .calculator-container h2 {
+        text-align: center;
+        color: #333;
+        margin-top: 0;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #555;
+    }
+    .form-group input[type="number"],
+    .form-group input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+    .form-group-radio {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+    }
+    .calculate-btn {
+        width: 100%;
+        padding: 12px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .calculate-btn:hover {
+        background-color: #0056b3;
+    }
+    #result {
+        margin-top: 25px;
+        padding: 15px;
+        background-color: #ffffff;
+        border: 1px dashed #ccc;
+        border-radius: 5px;
+        line-height: 1.6;
+    }
+</style>
+
+<div class="calculator-container">
+    <h2>Kalkulator Stunting (Z-Score)</h2>
+
+    <div class="form-group">
+        <label>Jenis Kelamin:</label>
+        <div class="form-group-radio">
+            <label><input checked="" name="jenis_kelamin" type="radio" value="Laki-laki" /> Laki-laki</label>
+            <label><input name="jenis_kelamin" type="radio" value="Perempuan" /> Perempuan</label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Umur (0-60 bulan):</label>
+        <input id="umur" max="60" placeholder="Contoh: 24" type="number" />
+    </div>
+
+    <div class="form-group">
+        <label>*Tinggi/Panjang Badan (cm):</label>
+        <input id="tinggi_badan" placeholder="Contoh: 87.1" type="number" />
+    </div>
+  
+  <div>
+    <p>*Anak berumur 24 bulan ke bawah diukur menggunakan panjang badan dalam kondisi tiduran</p>
+    <br />
+  </div>
+
+    <button class="calculate-btn" onclick="calculateZScore()">Hitung Z-Score</button>
+
+    <div id="result">
+        <p>Hasil akan ditunjukkan di sini.</p>
+    </div>
+  
+  <div>
+    <br />
+    <p>Kalkulasi menggunakan data dari Permenkes No. 2 Tahun 2020 sebagai referensi</p>
+  </div>
+</div>
+
+<p>Kalkulator ini mengukur Z-score Tinggi Badan menurut Usia (TB/U) untuk memberikan gambaran status pertumbuhan anak Anda. Hasil ini sebaiknya dikonsultasikan lebih lanjut dengan tenaga kesehatan profesional.</p>
+
+<p>Untuk pemahaman yang komprehensif mengenai stunting, faktor risiko, serta strategi pencegahan dan penanganannya, kami mengundang Anda untuk mengunjungi pusat edukasi kami yang telah disusun berdasarkan panduan tepercaya.</p>
+
+<a href="/p/edukasi-stunting.html" style="color:#007bff;"><b>[Kunjungi Halaman Edukasi Stunting Kami]</b></a>
+
+<script>
+    // 1. Store all data in a single, efficient JavaScript object.
+    const growthData = {
+        "Laki-laki": {
+            "0":{minus_3sd:44.2,minus_2sd:46.1,minus_1sd:48,median:49.9,plus_1sd:51.8,plus_2sd:53.7,plus_3sd:55.6},
+            "1":{minus_3sd:48.9,minus_2sd:50.8,minus_1sd:52.8,median:54.7,plus_1sd:56.7,plus_2sd:58.6,plus_3sd:60.6},
+            "2":{minus_3sd:52.4,minus_2sd:54.4,minus_1sd:56.4,median:58.4,plus_1sd:60.4,plus_2sd:62.4,plus_3sd:64.4},
+            "3":{minus_3sd:55.3,minus_2sd:57.3,minus_1sd:59.4,median:61.4,plus_1sd:63.5,plus_2sd:65.5,plus_3sd:67.6},
+            "4":{minus_3sd:57.6,minus_2sd:59.7,minus_1sd:61.8,median:63.9,plus_1sd:66,plus_2sd:68,plus_3sd:70.1},
+            "5":{minus_3sd:59.6,minus_2sd:61.7,minus_1sd:63.8,median:65.9,plus_1sd:68,plus_2sd:70.1,plus_3sd:72.2},
+            "6":{minus_3sd:61.2,minus_2sd:63.3,minus_1sd:65.5,median:67.6,plus_1sd:69.8,plus_2sd:71.9,plus_3sd:74},
+            "7":{minus_3sd:62.7,minus_2sd:64.8,minus_1sd:67,median:69.2,plus_1sd:71.3,plus_2sd:73.5,plus_3sd:75.7},
+            "8":{minus_3sd:64,minus_2sd:66.2,minus_1sd:68.4,median:70.6,plus_1sd:72.8,plus_2sd:75,plus_3sd:77.2},
+            "9":{minus_3sd:65.2,minus_2sd:67.5,minus_1sd:69.7,median:72,plus_1sd:74.2,plus_2sd:76.5,plus_3sd:78.7},
+            "10":{minus_3sd:66.4,minus_2sd:68.7,minus_1sd:71,median:73.3,plus_1sd:75.6,plus_2sd:77.9,plus_3sd:80.1},
+            "11":{minus_3sd:67.6,minus_2sd:69.9,minus_1sd:72.2,median:74.5,plus_1sd:76.9,plus_2sd:79.2,plus_3sd:81.5},
+            "12":{minus_3sd:68.6,minus_2sd:71,minus_1sd:73.4,median:75.7,plus_1sd:78.1,plus_2sd:80.5,plus_3sd:82.9},
+            "13":{minus_3sd:69.6,minus_2sd:72.1,minus_1sd:74.5,median:76.9,plus_1sd:79.3,plus_2sd:81.8,plus_3sd:84.2},
+            "14":{minus_3sd:70.6,minus_2sd:73.1,minus_1sd:75.6,median:78,plus_1sd:80.5,plus_2sd:83,plus_3sd:85.5},
+            "15":{minus_3sd:71.6,minus_2sd:74.1,minus_1sd:76.6,median:79.1,plus_1sd:81.7,plus_2sd:84.2,plus_3sd:86.7},
+            "16":{minus_3sd:72.5,minus_2sd:75,minus_1sd:77.6,median:80.2,plus_1sd:82.8,plus_2sd:85.4,plus_3sd:88},
+            "17":{minus_3sd:73.3,minus_2sd:76,minus_1sd:78.6,median:81.2,plus_1sd:83.9,plus_2sd:86.5,plus_3sd:89.2},
+            "18":{minus_3sd:74.2,minus_2sd:76.9,minus_1sd:79.6,median:82.3,plus_1sd:85,plus_2sd:87.7,plus_3sd:90.4},
+            "19":{minus_3sd:75,minus_2sd:77.7,minus_1sd:80.5,median:83.2,plus_1sd:86,plus_2sd:88.8,plus_3sd:91.5},
+            "20":{minus_3sd:75.8,minus_2sd:78.6,minus_1sd:81.4,median:84.2,plus_1sd:87,plus_2sd:89.8,plus_3sd:92.6},
+            "21":{minus_3sd:76.5,minus_2sd:79.4,minus_1sd:82.3,median:85.1,plus_1sd:88,plus_2sd:90.9,plus_3sd:93.8},
+            "22":{minus_3sd:77.2,minus_2sd:80.2,minus_1sd:83.1,median:86,plus_1sd:89,plus_2sd:91.9,plus_3sd:94.9},
+            "23":{minus_3sd:78,minus_2sd:81,minus_1sd:83.9,median:86.9,plus_1sd:89.9,plus_2sd:92.9,plus_3sd:95.9},
+            "24":{minus_3sd:78,minus_2sd:81,minus_1sd:84.1,median:87.1,plus_1sd:90.2,plus_2sd:93.2,plus_3sd:96.3},
+            "25":{minus_3sd:78.6,minus_2sd:81.7,minus_1sd:84.9,median:88,plus_1sd:91.1,plus_2sd:94.2,plus_3sd:97.3},
+            "26":{minus_3sd:79.3,minus_2sd:82.5,minus_1sd:85.6,median:88.8,plus_1sd:92,plus_2sd:95.2,plus_3sd:98.3},
+            "27":{minus_3sd:79.9,minus_2sd:83.1,minus_1sd:86.4,median:89.6,plus_1sd:92.9,plus_2sd:96.1,plus_3sd:99.3},
+            "28":{minus_3sd:80.5,minus_2sd:83.8,minus_1sd:87.1,median:90.4,plus_1sd:93.7,plus_2sd:97,plus_3sd:100.3},
+            "29":{minus_3sd:81.1,minus_2sd:84.5,minus_1sd:87.8,median:91.2,plus_1sd:94.5,plus_2sd:97.9,plus_3sd:101.2},
+            "30":{minus_3sd:81.7,minus_2sd:85.1,minus_1sd:88.5,median:91.9,plus_1sd:95.3,plus_2sd:98.7,plus_3sd:102.1},
+            "31":{minus_3sd:82.3,minus_2sd:85.7,minus_1sd:89.2,median:92.7,plus_1sd:96.1,plus_2sd:99.6,plus_3sd:103},
+            "32":{minus_3sd:82.8,minus_2sd:86.4,minus_1sd:89.9,median:93.4,plus_1sd:96.9,plus_2sd:100.4,plus_3sd:103.9},
+            "33":{minus_3sd:83.4,minus_2sd:86.9,minus_1sd:90.5,median:94.1,plus_1sd:97.6,plus_2sd:101.2,plus_3sd:104.8},
+            "34":{minus_3sd:83.9,minus_2sd:87.5,minus_1sd:91.1,median:94.8,plus_1sd:98.4,plus_2sd:102,plus_3sd:105.6},
+            "35":{minus_3sd:84.4,minus_2sd:88.1,minus_1sd:91.8,median:95.4,plus_1sd:99.1,plus_2sd:102.7,plus_3sd:106.4},
+            "36":{minus_3sd:85,minus_2sd:88.7,minus_1sd:92.4,median:96.1,plus_1sd:99.8,plus_2sd:103.5,plus_3sd:107.2},
+            "37":{minus_3sd:85.5,minus_2sd:89.2,minus_1sd:93,median:96.7,plus_1sd:100.5,plus_2sd:104.2,plus_3sd:108},
+            "38":{minus_3sd:86,minus_2sd:89.8,minus_1sd:93.6,median:97.4,plus_1sd:101.2,plus_2sd:105,plus_3sd:108.8},
+            "39":{minus_3sd:86.5,minus_2sd:90.3,minus_1sd:94.2,median:98,plus_1sd:101.8,plus_2sd:105.7,plus_3sd:109.5},
+            "40":{minus_3sd:87,minus_2sd:90.9,minus_1sd:94.7,median:98.6,plus_1sd:102.5,plus_2sd:106.4,plus_3sd:110.3},
+            "41":{minus_3sd:87.5,minus_2sd:91.4,minus_1sd:95.3,median:99.2,plus_1sd:103.2,plus_2sd:107.1,plus_3sd:111},
+            "42":{minus_3sd:88,minus_2sd:91.9,minus_1sd:95.9,median:99.9,plus_1sd:103.8,plus_2sd:107.8,plus_3sd:111.7},
+            "43":{minus_3sd:88.4,minus_2sd:92.4,minus_1sd:96.4,median:100.4,plus_1sd:104.5,plus_2sd:108.5,plus_3sd:112.5},
+            "44":{minus_3sd:88.9,minus_2sd:93,minus_1sd:97,median:101,plus_1sd:105.1,plus_2sd:109.1,plus_3sd:113.2},
+            "45":{minus_3sd:89.4,minus_2sd:93.5,minus_1sd:97.5,median:101.6,plus_1sd:105.7,plus_2sd:109.8,plus_3sd:113.9},
+            "46":{minus_3sd:89.8,minus_2sd:94,minus_1sd:98.1,median:102.2,plus_1sd:106.3,plus_2sd:110.4,plus_3sd:114.6},
+            "47":{minus_3sd:90.3,minus_2sd:94.4,minus_1sd:98.6,median:102.8,plus_1sd:106.9,plus_2sd:111.1,plus_3sd:115.2},
+            "48":{minus_3sd:90.7,minus_2sd:94.9,minus_1sd:99.1,median:103.3,plus_1sd:107.5,plus_2sd:111.7,plus_3sd:115.9},
+            "49":{minus_3sd:91.2,minus_2sd:95.4,minus_1sd:99.7,median:103.9,plus_1sd:108.1,plus_2sd:112.4,plus_3sd:116.6},
+            "50":{minus_3sd:91.6,minus_2sd:95.9,minus_1sd:100.2,median:104.4,plus_1sd:108.7,plus_2sd:113,plus_3sd:117.3},
+            "51":{minus_3sd:92.1,minus_2sd:96.4,minus_1sd:100.7,median:105,plus_1sd:109.3,plus_2sd:113.6,plus_3sd:117.9},
+            "52":{minus_3sd:92.5,minus_2sd:96.9,minus_1sd:101.2,median:105.6,plus_1sd:109.9,plus_2sd:114.2,plus_3sd:118.6},
+            "53":{minus_3sd:93,minus_2sd:97.4,minus_1sd:101.7,median:106.1,plus_1sd:110.5,plus_2sd:114.9,plus_3sd:119.2},
+            "54":{minus_3sd:93.4,minus_2sd:97.8,minus_1sd:102.3,median:106.7,plus_1sd:111.1,plus_2sd:115.5,plus_3sd:119.9},
+            "55":{minus_3sd:93.9,minus_2sd:98.3,minus_1sd:102.8,median:107.2,plus_1sd:111.7,plus_2sd:116.1,plus_3sd:120.6},
+            "56":{minus_3sd:94.3,minus_2sd:98.8,minus_1sd:103.3,median:107.8,plus_1sd:112.3,plus_2sd:116.7,plus_3sd:121.2},
+            "57":{minus_3sd:94.7,minus_2sd:99.3,minus_1sd:103.8,median:108.3,plus_1sd:112.8,plus_2sd:117.4,plus_3sd:121.9},
+            "58":{minus_3sd:95.2,minus_2sd:99.7,minus_1sd:104.3,median:108.9,plus_1sd:113.4,plus_2sd:118,plus_3sd:122.6},
+            "59":{minus_3sd:95.6,minus_2sd:100.2,minus_1sd:104.8,median:109.4,plus_1sd:114,plus_2sd:118.6,plus_3sd:123.2},
+            "60":{minus_3sd:96.1,minus_2sd:100.7,minus_1sd:105.3,median:110,plus_1sd:114.6,plus_2sd:119.2,plus_3sd:123.9}
+        },
+        "Perempuan": {
+            "0":{minus_3sd:43.6,minus_2sd:45.4,minus_1sd:47.3,median:49.1,plus_1sd:51,plus_2sd:52.9,plus_3sd:54.7},
+            "1":{minus_3sd:47.8,minus_2sd:49.8,minus_1sd:51.7,median:53.7,plus_1sd:55.6,plus_2sd:57.6,plus_3sd:59.5},
+            "2":{minus_3sd:51,minus_2sd:53,minus_1sd:55,median:57.1,plus_1sd:59.1,plus_2sd:61.1,plus_3sd:63.2},
+            "3":{minus_3sd:53.5,minus_2sd:55.6,minus_1sd:57.7,median:59.8,plus_1sd:61.9,plus_2sd:64,plus_3sd:66.1},
+            "4":{minus_3sd:55.6,minus_2sd:57.8,minus_1sd:59.9,median:62.1,plus_1sd:64.3,plus_2sd:66.4,plus_3sd:68.6},
+            "5":{minus_3sd:57.4,minus_2sd:59.6,minus_1sd:61.8,median:64,plus_1sd:66.2,plus_2sd:68.5,plus_3sd:70.7},
+            "6":{minus_3sd:58.9,minus_2sd:61.2,minus_1sd:63.5,median:65.7,plus_1sd:68,plus_2sd:70.3,plus_3sd:72.5},
+            "7":{minus_3sd:60.3,minus_2sd:62.7,minus_1sd:65,median:67.3,plus_1sd:69.6,plus_2sd:71.9,plus_3sd:74.2},
+            "8":{minus_3sd:61.7,minus_2sd:64,minus_1sd:66.4,median:68.7,plus_1sd:71.1,plus_2sd:73.5,plus_3sd:75.8},
+            "9":{minus_3sd:62.9,minus_2sd:65.3,minus_1sd:67.7,median:70.1,plus_1sd:72.6,plus_2sd:75,plus_3sd:77.4},
+            "10":{minus_3sd:64.1,minus_2sd:66.5,minus_1sd:69,median:71.5,plus_1sd:73.9,plus_2sd:76.4,plus_3sd:78.9},
+            "11":{minus_3sd:65.2,minus_2sd:67.7,minus_1sd:70.3,median:72.8,plus_1sd:75.3,plus_2sd:77.8,plus_3sd:80.3},
+            "12":{minus_3sd:66.3,minus_2sd:68.9,minus_1sd:71.4,median:74,plus_1sd:76.6,plus_2sd:79.2,plus_3sd:81.7},
+            "13":{minus_3sd:67.3,minus_2sd:70,minus_1sd:72.6,median:75.2,plus_1sd:77.8,plus_2sd:80.5,plus_3sd:83.1},
+            "14":{minus_3sd:68.3,minus_2sd:71,minus_1sd:73.7,median:76.4,plus_1sd:79.1,plus_2sd:81.7,plus_3sd:84.4},
+            "15":{minus_3sd:69.3,minus_2sd:72,minus_1sd:74.8,median:77.5,plus_1sd:80.2,plus_2sd:83,plus_3sd:85.7},
+            "16":{minus_3sd:70.2,minus_2sd:73,minus_1sd:75.8,median:78.6,plus_1sd:81.4,plus_2sd:84.2,plus_3sd:87},
+            "17":{minus_3sd:71.1,minus_2sd:74,minus_1sd:76.8,median:79.7,plus_1sd:82.5,plus_2sd:85.4,plus_3sd:88.2},
+            "18":{minus_3sd:72,minus_2sd:74.9,minus_1sd:77.8,median:80.7,plus_1sd:83.6,plus_2sd:86.5,plus_3sd:89.4},
+            "19":{minus_3sd:72.8,minus_2sd:75.8,minus_1sd:78.8,median:81.7,plus_1sd:84.7,plus_2sd:87.6,plus_3sd:90.6},
+            "20":{minus_3sd:73.7,minus_2sd:76.7,minus_1sd:79.7,median:82.7,plus_1sd:85.7,plus_2sd:88.7,plus_3sd:91.7},
+            "21":{minus_3sd:74.5,minus_2sd:77.5,minus_1sd:80.6,median:83.7,plus_1sd:86.7,plus_2sd:89.8,plus_3sd:92.9},
+            "22":{minus_3sd:75.2,minus_2sd:78.4,minus_1sd:81.5,median:84.6,plus_1sd:87.7,plus_2sd:90.8,plus_3sd:94},
+            "23":{minus_3sd:76,minus_2sd:79.2,minus_1sd:82.3,median:85.5,plus_1sd:88.7,plus_2sd:91.9,plus_3sd:95},
+            "24":{minus_3sd:76,minus_2sd:79.3,minus_1sd:82.5,median:85.7,plus_1sd:88.9,plus_2sd:92.2,plus_3sd:95.4},
+            "25":{minus_3sd:76.8,minus_2sd:80,minus_1sd:83.3,median:86.6,plus_1sd:89.9,plus_2sd:93.1,plus_3sd:96.4},
+            "26":{minus_3sd:77.5,minus_2sd:80.8,minus_1sd:84.1,median:87.4,plus_1sd:90.8,plus_2sd:94.1,plus_3sd:97.4},
+            "27":{minus_3sd:78.1,minus_2sd:81.5,minus_1sd:84.9,median:88.3,plus_1sd:91.7,plus_2sd:95,plus_3sd:98.4},
+            "28":{minus_3sd:78.8,minus_2sd:82.2,minus_1sd:85.7,median:89.1,plus_1sd:92.5,plus_2sd:96,plus_3sd:99.4},
+            "29":{minus_3sd:79.5,minus_2sd:82.9,minus_1sd:86.4,median:89.9,plus_1sd:93.4,plus_2sd:96.9,plus_3sd:100.3},
+            "30":{minus_3sd:80.1,minus_2sd:83.6,minus_1sd:87.1,median:90.7,plus_1sd:94.2,plus_2sd:97.7,plus_3sd:101.3},
+            "31":{minus_3sd:80.7,minus_2sd:84.3,minus_1sd:87.9,median:91.4,plus_1sd:95,plus_2sd:98.6,plus_3sd:102.2},
+            "32":{minus_3sd:81.3,minus_2sd:84.9,minus_1sd:88.6,median:92.2,plus_1sd:95.8,plus_2sd:99.4,plus_3sd:103.1},
+            "33":{minus_3sd:81.9,minus_2sd:85.6,minus_1sd:89.3,median:92.9,plus_1sd:96.6,plus_2sd:100.3,plus_3sd:103.9},
+            "34":{minus_3sd:82.5,minus_2sd:86.2,minus_1sd:89.9,median:93.6,plus_1sd:97.4,plus_2sd:101.1,plus_3sd:104.8},
+            "35":{minus_3sd:83.1,minus_2sd:86.8,minus_1sd:90.6,median:94.4,plus_1sd:98.1,plus_2sd:101.9,plus_3sd:105.6},
+            "36":{minus_3sd:83.6,minus_2sd:87.4,minus_1sd:91.2,median:95.1,plus_1sd:98.9,plus_2sd:102.7,plus_3sd:106.5},
+            "37":{minus_3sd:84.2,minus_2sd:88,minus_1sd:91.9,median:95.7,plus_1sd:99.6,plus_2sd:103.4,plus_3sd:107.3},
+            "38":{minus_3sd:84.7,minus_2sd:88.6,minus_1sd:92.5,median:96.4,plus_1sd:100.3,plus_2sd:104.2,plus_3sd:108.1},
+            "39":{minus_3sd:85.3,minus_2sd:89.2,minus_1sd:93.1,median:97.1,plus_1sd:101,plus_2sd:105,plus_3sd:108.9},
+            "40":{minus_3sd:85.8,minus_2sd:89.8,minus_1sd:93.8,median:97.7,plus_1sd:101.7,plus_2sd:105.7,plus_3sd:109.7},
+            "41":{minus_3sd:86.3,minus_2sd:90.4,minus_1sd:94.4,median:98.4,plus_1sd:102.4,plus_2sd:106.4,plus_3sd:110.5},
+            "42":{minus_3sd:86.8,minus_2sd:90.9,minus_1sd:95,median:99,plus_1sd:103.1,plus_2sd:107.2,plus_3sd:111.2},
+            "43":{minus_3sd:87.4,minus_2sd:91.5,minus_1sd:95.6,median:99.7,plus_1sd:103.8,plus_2sd:107.9,plus_3sd:112},
+            "44":{minus_3sd:87.9,minus_2sd:92,minus_1sd:96.2,median:100.3,plus_1sd:104.5,plus_2sd:108.6,plus_3sd:112.7},
+            "45":{minus_3sd:88.4,minus_2sd:92.5,minus_1sd:96.7,median:100.9,plus_1sd:105.1,plus_2sd:109.3,plus_3sd:113.5},
+            "46":{minus_3sd:88.9,minus_2sd:93.1,minus_1sd:97.3,median:101.5,plus_1sd:105.8,plus_2sd:110,plus_3sd:114.2},
+            "47":{minus_3sd:89.3,minus_2sd:93.6,minus_1sd:97.9,median:102.1,plus_1sd:106.4,plus_2sd:110.7,plus_3sd:114.9},
+            "48":{minus_3sd:89.8,minus_2sd:94.1,minus_1sd:98.4,median:102.7,plus_1sd:107,plus_2sd:111.3,plus_3sd:115.7},
+            "49":{minus_3sd:90.3,minus_2sd:94.6,minus_1sd:99,median:103.3,plus_1sd:107.7,plus_2sd:112,plus_3sd:116.4},
+            "50":{minus_3sd:90.7,minus_2sd:95.1,minus_1sd:99.5,median:103.9,plus_1sd:108.3,plus_2sd:112.7,plus_3sd:117.1},
+            "51":{minus_3sd:91.2,minus_2sd:95.6,minus_1sd:100.1,median:104.5,plus_1sd:108.9,plus_2sd:113.3,plus_3sd:117.7},
+            "52":{minus_3sd:91.7,minus_2sd:96.1,minus_1sd:100.6,median:105,plus_1sd:109.5,plus_2sd:114,plus_3sd:118.4},
+            "53":{minus_3sd:92.1,minus_2sd:96.6,minus_1sd:101.1,median:105.6,plus_1sd:110.1,plus_2sd:114.6,plus_3sd:119.1},
+            "54":{minus_3sd:92.6,minus_2sd:97.1,minus_1sd:101.6,median:106.2,plus_1sd:110.7,plus_2sd:115.2,plus_3sd:119.8},
+            "55":{minus_3sd:93,minus_2sd:97.6,minus_1sd:102.2,median:106.7,plus_1sd:111.3,plus_2sd:115.9,plus_3sd:120.4},
+            "56":{minus_3sd:93.4,minus_2sd:98.1,minus_1sd:102.7,median:107.3,plus_1sd:111.9,plus_2sd:116.5,plus_3sd:121.1},
+            "57":{minus_3sd:93.9,minus_2sd:98.5,minus_1sd:103.2,median:107.8,plus_1sd:112.5,plus_2sd:117.1,plus_3sd:121.8},
+            "58":{minus_3sd:94.3,minus_2sd:99,minus_1sd:103.7,median:108.4,plus_1sd:113,plus_2sd:117.7,plus_3sd:122.4},
+            "59":{minus_3sd:94.7,minus_2sd:99.5,minus_1sd:104.2,median:108.9,plus_1sd:113.6,plus_2sd:118.3,plus_3sd:123.1},
+            "60":{minus_3sd:95.2,minus_2sd:99.9,minus_1sd:104.7,median:109.4,plus_1sd:114.2,plus_2sd:118.9,plus_3sd:123.7}
+        }
+    };
+
+    // 2. The main function to calculate and display the Z-Score
+    function calculateZScore() {
+        // Get values from the input fields
+        const jenis_kelamin = document.querySelector('input[name="jenis_kelamin"]:checked').value;
+        const umur = parseInt(document.getElementById('umur').value);
+        const tinggi_badan = parseFloat(document.getElementById('tinggi_badan').value);
+        const resultDiv = document.getElementById('result');
+
+        // Validate inputs
+        if (isNaN(umur) || isNaN(tinggi_badan)) {
+            resultDiv.innerHTML = "<p style='color: red;'>Mohon isi Umur dan Tinggi Badan yang sesuai.</p>";
+            return;
+        }
+
+        // Get the standards object for the specific age and gender
+        const standards = growthData[jenis_kelamin] ? growthData[jenis_kelamin][umur] : null;
+
+        // Check if data was found for the age
+        if (!standards) {
+            resultDiv.innerHTML = `<p style='color: red;'>Tidak bisa mengukur umur ${umur} bulan. Mohon isi umur dari 0 - 60 bulan.</p>`;
+            return;
+        }
+
+        let z_score;
+        let formulaUsed;
+        const { median, plus_1sd, minus_1sd } = standards;
+
+        // The core logic with two different formulas
+        if (tinggi_badan > median) {
+            let upper_sd = plus_1sd - median;
+            z_score = (tinggi_badan - median) / upper_sd;
+            formulaUsed = `(Tinggi Badan - Median) / (+1SD - Median) = (${tinggi_badan} - ${median}) / (${plus_1sd} - ${median})`;
+        } else if (tinggi_badan < median) {
+            let lower_sd = median - minus_1sd;
+            z_score = (tinggi_badan - median) / lower_sd;
+            formulaUsed = `(Tinggi Badan - Median) / (Median - (-1SD)) = (${tinggi_badan} - ${median}) / (${median} - ${minus_1sd})`;
+        } else {
+            z_score = 0;
+            formulaUsed = "Tinggi Badan Berada di Rata-rata.";
+        }
+        
+        // Determine nutritional status based on Z-score
+        let status;
+        if (z_score < -3) {
+            status = "Severely Stunted (Sangat Pendek)";
+        } else if (z_score < -2) {
+            status = "Stunted (Pendek)";
+        } else if (z_score <= 3) {
+            status = "Normal";
+        } else {
+            status = "Tall (Tinggi)";
+        }
+
+        // Display the results
+        resultDiv.innerHTML = `
+            <p><strong>Input Data:</strong></p>
+            <ul>
+                <li>Umur: ${umur} Bulan</li>
+                <li>Jenis Kelamin: ${jenis_kelamin}</li>
+                <li>Tinggi Badan/Panjang Badan: ${tinggi_badan} cm</li>
+            </ul>
+            <p><strong>Referensi Standar Tinggi Badan (Median):</strong> ${median} cm</p>
+            <hr>
+            <p><strong>Rumus yang digunakan:</strong><br>${formulaUsed}</p>
+            <h3>Hasil Z-Score: ${z_score.toFixed(2)}</h3>
+            <h3>Status: <span style="color: #007bff;">${status}</span></h3>
+        `;
+    }
+</script>
